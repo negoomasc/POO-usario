@@ -3,17 +3,23 @@ import { ContaBancaria } from './models/ContaBancaria';
 
 const conta = new ContaBancaria();
 
+const formatarReal = (valor: number): string =>
+  valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
 const App: React.FC = () => {
   const [valor, setValor] = useState<number>(0);
   const [operacao, setOperacao] = useState<'deposito' | 'saque'>('deposito');
   const [saldoAtual, setSaldoAtual] = useState<number>(conta.verSaldo());
+  const [mensagem, setMensagem] = useState<string>('');
 
   const handleOperacao = () => {
+    let retorno: string = '';
     if (operacao === 'deposito') {
-      conta.depositar(valor);
+      retorno = conta.depositar(valor);
     } else {
-      conta.sacar(valor);
+      retorno = conta.sacar(valor);
     }
+    setMensagem(retorno);
     setSaldoAtual(conta.verSaldo());
     setValor(0);
   };
@@ -21,7 +27,7 @@ const App: React.FC = () => {
   return (
     <div style={{ padding: '20px' }}>
       <h1>💰 Conta Bancária</h1>
-      <p>Saldo atual: R$ {saldoAtual.toFixed(2)}</p>
+      <p><strong>Saldo atual:</strong> {formatarReal(saldoAtual)}</p>
 
       <div>
         <label>
@@ -45,6 +51,8 @@ const App: React.FC = () => {
       </div>
 
       <button onClick={handleOperacao}>Executar</button>
+
+      {mensagem && <p style={{ marginTop: '10px', color: mensagem.startsWith('Erro') ? 'red' : 'green' }}>{mensagem}</p>}
     </div>
   );
 };
